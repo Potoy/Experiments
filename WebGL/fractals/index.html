@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<title>fractals experiment</title>
+	<script src="js/three.min.js"></script>
+	<script src="js/Detector.js"></script>
+	<script src="js/stats.min.js"></script>
+	<style>
+			body { margin: 0; overflow: hidden; }
+	</style>
+</head>
+<body>
+	<div id="container"></div>
+	<script id="fragmentShader" type="x-shader/x-fragment">
+
+	#define iterations 256
+
+	varying vec2 texCoordVarying;
+
+	uniform sampler2D tex;
+	uniform vec2 center;
+	uniform float scale;
+	
+
+	void main() {
+
+	    float r2 = 0.0;
+
+	    vec3 color = vec3(0.0,0.0,0.0); // initialize color to black
+
+   		vec2 z = texCoordVarying; // z.x is the real component z.y is the imaginary component
+
+   		// Rescale the position to the intervals [-2,1] [-1,1]
+	    z *= vec2(3.0,2.0);
+	    z -= vec2(2.0,1.0);
+
+	    vec2 c = z;
+
+	    float it = 0.0;
+
+	    for (int i = 0; i < iterations; ++i)
+    	{
+
+	        z = vec2(z.x * z.x - z.y * z.y, 2.0 * z.x * z.y);
+        	z += c;
+
+	        if (dot(z,z) > 4.0)
+	        	break;
+	        it += 1.0;
+    	}
+
+	    if (it < float(iterations)) {
+	        color.x = sin(it / 3.0);
+	        color.y = cos(it / 6.0);
+	        color.z = cos(it / 12.0 + 3.14 / 4.0);
+	    }
+	    
+   		gl_FragColor = vec4(color, 1.0);
+	}
+
+	</script>
+	<script id="vertexShader" type="x-shader/x-vertex">
+
+	varying vec2 texCoordVarying;
+
+	void main()
+	{
+		
+		gl_Position = vec4( position, 1.0 );
+		texCoordVarying = uv;
+	}
+	</script>
+
+	<script src="js/scene.js"></script>
+</body>
+</html>
